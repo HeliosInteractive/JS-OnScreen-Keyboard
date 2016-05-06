@@ -20,7 +20,7 @@
 - [x] Converge all events to a single handler
 - [x] Keyboard can keep track of which element it should update
 - [x] When there is an element the keyboard's focusing on, pressing keys inserts value to it
-- [ ] Value inserting works just like actual keyboard, takes caret place and selection into consideration
+- [x] Value inserting works just like actual keyboard, takes caret place and selection into consideration
 - [ ] Destroy function to unbind and destroy html
 - [ ] Layouts are defined by config json file and can be swapped
 - [ ] Some keys can have behaviors overriden and run custom functions instead

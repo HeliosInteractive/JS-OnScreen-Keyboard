@@ -14,13 +14,11 @@ function Keyboard(){
 
     // Update focused element if there is one
     if (this.focusedEl !== null) {
-      // Append key's symbol to wherever the input caret is at
-      var pos = this.focusedEl.selectionStart;
+      var start = this.focusedEl.selectionStart;
+      var end = this.focusedEl.selectionEnd;
       var text = this.focusedEl.value;
-      this.focusedEl.value = text.substring(0, pos) + keyInfo.symbol + text.substring(pos);
-      this.focusedEl.setSelectionRange(pos+1, pos+1);
-
-      // TODO make work with selected test too
+      this.focusedEl.value = text.substring(0, start) + keyInfo.symbol + text.substring(end);
+      this.focusedEl.setSelectionRange(start+1, start+1);
     }
     // Invoke the hook with key's data if there's one
 
