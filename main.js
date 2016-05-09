@@ -1,7 +1,7 @@
 "use strict";
 
 console.log("TEEEEEXT");
-var keyboard = new Keyboard();
+var keyboard = new Keyboard("basic");
 var hostEL = document.querySelector(".keyboard-host");
 var inputEl = document.querySelector(".input-name");
 

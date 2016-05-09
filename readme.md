@@ -26,8 +26,14 @@
 - [x] When there is an element the keyboard's focusing on, pressing keys inserts value to it
 - [x] Value inserting works just like actual keyboard, takes caret place and selection into consideration
 - [x] Destroy function to unbind and destroy html
-- [ ] Layouts are defined by config json file and can be swapped
+- [x] Layouts are defined by config json file and can be swapped
+- [x] Keys may insert a different character than its label
 - [ ] Some keys can have behaviors overriden and run custom functions instead
+  - [ ] There are some functions that's not inserting, but universal on keyboards
+    - [ ] backspace, tab
+    - [ ] How about reusing functions?
+      - shared config files between projects
+  - Another approach: For every custom field there's a custom hook
 - [ ] Generated keys have a structure that allows easy style changing via CSS
 
 - [ ] Platform testing
