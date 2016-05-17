@@ -1,0 +1,22 @@
+{
+  "name": "js-onscreen-keyboard",
+  "version": "0.0.0",
+  "description": "Lightweight and easily customizable onscreen keyboard",
+  "main": "main.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@helios-stash.heliosinteractive.com:7999/hlibs/js-onscreen-keyboard.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "mocha": "^2.4.5",
+    "should": "^8.3.1"
+  }
+}

@@ -2,7 +2,15 @@
 
 function Keyboard(layoutName){
 
-  this.activeLayoutName = layoutName;
+  if (!layoutName) throw new Error("Keyboard Initiation: missing layout name");
+
+  var activeLayoutName;
+  this.setLayout = function(pName) {
+    if (!Keyboard.layout[pName]) throw new Error("Keyboard layout not found: " + pName);
+    activeLayoutName = pName;
+  }
+
+  this.setLayout(layoutName);
 
   this.focusedEl = null;
   this.keyboardEl = null;
@@ -29,13 +37,13 @@ function Keyboard(layoutName){
 
   // Generate keyboard HTML, bind events, insert them to given element
   this.placeIn = function (el) {
-    if (!Keyboard.layout[this.activeLayoutName]) throw new Error("Keyboard.placeIn(): Missing layout.");
+    if (!Keyboard.layout[activeLayoutName]) throw new Error("Keyboard.placeIn(): Missing layout: " + activeLayoutName);
     // Create container
     this.keyboardEl = document.createElement("div");
     this.keyboardEl.classList.add("keyboard-container");
     // Create elements based off layout
     // TODO There's a lot of indentation here.
-    Keyboard.layout[this.activeLayoutName].forEach(function(row, rowIndex, layout){
+    Keyboard.layout[activeLayoutName].forEach(function(row, rowIndex, layout){
       var rowEl = document.createElement("div");
       rowEl.classList.add("keyboard-row");
       rowEl.classList.add("keyboard-row--" + rowIndex);
