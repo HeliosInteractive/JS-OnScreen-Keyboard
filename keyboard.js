@@ -18,11 +18,11 @@ if( !exports ) var exports = {};
     // Pipe key's data to an object
     var keyInfo = Object.assign({}, e.target.dataset);
     // Update focused element if there is one
-    var text = this.focusedEl.value;
-    this.focusedEl.value = text.substring(0, this.focusedEl.selectionStart) +
-        keyInfo.symbol +
-        text.substring(this.focusedEl.selectionEnd);
-    var newCaretPosition = this.focusedEl.value.length - (text.length - this.focusedEl.selectionEnd);
+    var oldStart = this.focusedEl.selectionStart;
+    var oldEnd = this.focusedEl.selectionEnd;
+    var oldText = this.focusedEl.value;
+    this.focusedEl.value = oldText.substring(0, oldStart) + keyInfo.symbol + oldText.substring(oldEnd);
+    var newCaretPosition = this.focusedEl.value.length - (oldText.length - oldEnd);
     this.focusedEl.setSelectionRange(newCaretPosition, newCaretPosition);
   };
   // Generate keyboard HTML, bind events, insert them to given element
