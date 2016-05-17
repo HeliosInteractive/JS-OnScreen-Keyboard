@@ -14,16 +14,42 @@ if( !exports ) var exports = {};
   var handleKeyboardEvents = function (e) {
     e.preventDefault();
     // Check to make sure it's a key that's pressed
-    if (!e.target.classList.contains("keyboard-key") || !this.focusedEl) return;
+    if (!e.target.classList.contains("keyboard-key")) return;
     // Pipe key's data to an object
     var keyInfo = Object.assign({}, e.target.dataset);
+
+    // handle special yet common keys like backspace
+    if (keyInfo.func) {
+      handleFuncKeys.bind(this)(keyInfo);
+      return;
+    }
+
     // Update focused element if there is one
+    if (!keyInfo.symbol || !this.focusedEl) return;
     var oldStart = this.focusedEl.selectionStart;
     var oldEnd = this.focusedEl.selectionEnd;
     var oldText = this.focusedEl.value;
     this.focusedEl.value = oldText.substring(0, oldStart) + keyInfo.symbol + oldText.substring(oldEnd);
     var newCaretPosition = this.focusedEl.value.length - (oldText.length - oldEnd);
     this.focusedEl.setSelectionRange(newCaretPosition, newCaretPosition);
+  };
+  // Handles
+  var handleFuncKeys = function(keyInfo) {
+    // TODO Add more common functionality
+    if (keyInfo.func == "backspace" && this.focusedEl) {
+      var oldStart = this.focusedEl.selectionStart;
+      var oldEnd = this.focusedEl.selectionEnd;
+      var oldText = this.focusedEl.value;
+      if (oldStart == oldEnd) {
+        // no selection; remove one character from old
+        this.focusedEl.value = oldText.substring(0, oldStart - 1) + oldText.substring(oldEnd);
+      } else {
+        this.focusedEl.value = oldText.substring(0, oldStart) + oldText.substring(oldEnd);
+      }
+      var newCaretPosition = this.focusedEl.value.length - (oldText.length - oldEnd);
+      this.focusedEl.setSelectionRange(newCaretPosition, newCaretPosition);
+    }
+    // TODO Run custom functions by the developer
   };
   // Generate keyboard HTML, bind events, insert them to given element
   Keyboard.prototype.placeIn = function (el) {

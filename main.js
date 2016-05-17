@@ -6,10 +6,13 @@ var inputEl = document.querySelector(".input-name");
 
 // Generate keyboard HTML, bind events, insert them to given element
 keyboard.placeIn(hostEL);
-// Set event handler for all keyboard events
-keyboard.callback = function handleKeyboardEvents(e) {
-  console.log(e);
-};
+
+// TODO Keyboard should allow hooking functions to execute for special keys
+// e.g.
+// keyboard.customFunc["tab"] = function switchInput(){
+// ...code
+// }
+
 // Make keyboard's events update input el's content
 keyboard.focus(inputEl);
 
