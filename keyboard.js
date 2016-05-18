@@ -11,7 +11,7 @@ if( !exports ) var exports = {};
       activeLayoutName = layoutName;
     };
 
-    this.setLayout(layoutName)
+    this.setLayout(layoutName);
 
     this.focusedEl = null;
     this.keyboardEl = null;

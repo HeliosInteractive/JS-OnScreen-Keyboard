@@ -19,7 +19,7 @@ Keyboard.layout.basic = [
     {"label": "\u21E6", "func": "backspace"}
   ],
   [
-    {"label": "tab", "func": "tab"},
+    // {"label": "tab", "func": "tab"},
     {"symbol": "A"},
     {"symbol": "S"},
     {"symbol": "D"},

@@ -27,12 +27,14 @@
 - [ ] Common functionality keys
   - [x] backspace
   - [ ] tab
-- [ ] A system to easily attach new func keys
-  - [ ] 'func' property in layout files used to differentiate b/c keys
-  - [ ] public function to attach functions to run for keys w/ diff func
-  - [ ] Keys can have same func but different additional info too, like data
+- [x] A system to easily attach new func keys
+  - [x] 'func' property in layout files used to differentiate b/c keys
+  - [x] public function to attach functions to run for keys w/ diff func
+  - [x] Keys can have same func but different additional info too, and handlers have access to that
+
 - [ ] Generated keys have a structure that allows easy style changing via CSS
 
 - [ ] Platform testing
 - [ ] Click, Touch, Chrome's touch simulation, and FastClick.js driven touch event should all behave the same
 - [ ] Getters to make many type checkings easier?
+  - [ ] `setLayout`
