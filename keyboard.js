@@ -88,10 +88,18 @@ if( !exports ) var exports = {};
     var newCaretPosition = this.focusedEl.value.length - (oldText.length - oldEnd);
     this.focusedEl.setSelectionRange(newCaretPosition, newCaretPosition);
   };
-  // Handles
   var handleFuncKeys = function(keyInfo) {
-    // TODO Add more common functionality
-    if (keyInfo.func == "backspace" && this.focusedEl) {
+    // Run custom functions by the developer
+    if (this.customFunc[keyInfo.func]) {
+      this.customFunc[keyInfo.func].bind(this)(keyInfo);
+    } else {
+      console.warn("Keyboard: custom key '"+keyInfo.func+"' doesn't have a corresponding function.");
+    }
+  };
+  // Add common custom functions here
+  Keyboard.prototype.customFunc = {
+    backspace: function(keyInfo) {
+      if (!this.focusedEl) return;
       var oldStart = this.focusedEl.selectionStart;
       var oldEnd = this.focusedEl.selectionEnd;
       var oldText = this.focusedEl.value;
@@ -104,7 +112,6 @@ if( !exports ) var exports = {};
       var newCaretPosition = this.focusedEl.value.length - (oldText.length - oldEnd);
       this.focusedEl.setSelectionRange(newCaretPosition, newCaretPosition);
     }
-    // TODO Run custom functions by the developer
   };
 
   // Control which el is being updated

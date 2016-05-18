@@ -7,9 +7,9 @@ var inputEl = document.querySelector(".input-name");
 // Generate keyboard HTML, bind events, insert them to given element
 keyboard.placeIn(hostEl);
 
-// TODO Keyboard should allow hooking functions to execute for special keys
+// Keyboard allows hooking functions to execute for special keys
 // e.g.
-// keyboard.customFunc["tab"] = function switchInput(){
+// keyboard.customFunc["tab"] = function switchInput(keyInfo){
 // ...code
 // }
 
