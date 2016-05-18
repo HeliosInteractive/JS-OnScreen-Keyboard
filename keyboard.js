@@ -4,11 +4,66 @@ if( !exports ) var exports = {};
 
   function Keyboard(layoutName){
 
-    if (!Keyboard.layout[layoutName]) throw new Error("keyboard initiation: Missing layout: " + layoutName);
-    this.activeLayoutName = layoutName;
+    var activeLayoutName;
+
+    this.setLayout = function(layoutName) {
+      if (!Keyboard.layout[layoutName]) throw new Error("keyboard initiation: Missing layout: " + layoutName);
+      activeLayoutName = layoutName;
+    };
+
+    this.setLayout(layoutName)
 
     this.focusedEl = null;
     this.keyboardEl = null;
+
+    // Generate keyboard HTML, bind events, insert them to given element
+    this.placeIn = function (el) {
+
+      var self = this;
+      if (!Keyboard.layout[activeLayoutName]) throw new Error("Keyboard.placeIn(): Missing layout: " + activeLayoutName);
+      // Create container
+      self.keyboardEl = document.createElement("div");
+      self.keyboardEl.classList.add("keyboard-container");
+      // Create elements based off layout
+
+      function foreachLayout(row, rowIndex, layout){
+
+        var rowEl = document.createElement("div");
+        rowEl.classList.add("keyboard-row");
+        rowEl.classList.add("keyboard-row--" + rowIndex);
+
+        function foreachRow(key, keyIndex, row){
+          var keyEl = document.createElement("div");
+          keyEl.classList.add("keyboard-key");
+          keyEl.classList.add("keyboard-key--" + keyIndex);
+          // Parse the layout configuration
+          for (var dataName in key) {
+            switch (dataName) {
+              case "symbol":
+                if (!key.label) keyEl.innerHTML = key[dataName];
+                keyEl.dataset.symbol = key[dataName];
+                break;
+              case "label":
+                keyEl.innerHTML = key[dataName];
+                break;
+              default:
+                keyEl.dataset[dataName] = key[dataName];
+            }
+          }
+          rowEl.appendChild(keyEl);
+        }
+
+        row.forEach(foreachRow);
+        self.keyboardEl.appendChild(rowEl);
+      }
+
+      Keyboard.layout[activeLayoutName].forEach(foreachLayout);
+      // bind events
+      self.keyboardEl.addEventListener("mousedown", handleKeyboardEvents.bind(self));
+      self.keyboardEl.addEventListener("touchstart", handleKeyboardEvents.bind(self));
+      // Append keys to el
+      el.appendChild(self.keyboardEl);
+    };
   };
   // We would like to pipe all keyboard events through one handler
   var handleKeyboardEvents = function (e) {
@@ -50,54 +105,6 @@ if( !exports ) var exports = {};
       this.focusedEl.setSelectionRange(newCaretPosition, newCaretPosition);
     }
     // TODO Run custom functions by the developer
-  };
-  // Generate keyboard HTML, bind events, insert them to given element
-  Keyboard.prototype.placeIn = function (el) {
-
-    var self = this;
-    if (!Keyboard.layout[self.activeLayoutName]) throw new Error("Keyboard.placeIn(): Missing layout: " + self.activeLayoutName);
-    // Create container
-    self.keyboardEl = document.createElement("div");
-    self.keyboardEl.classList.add("keyboard-container");
-    // Create elements based off layout
-
-    function foreachLayout(row, rowIndex, layout){
-
-      var rowEl = document.createElement("div");
-      rowEl.classList.add("keyboard-row");
-      rowEl.classList.add("keyboard-row--" + rowIndex);
-
-      function foreachRow(key, keyIndex, row){
-        var keyEl = document.createElement("div");
-        keyEl.classList.add("keyboard-key");
-        keyEl.classList.add("keyboard-key--" + keyIndex);
-        // Parse the layout configuration
-        for (var dataName in key) {
-          switch (dataName) {
-            case "symbol":
-              if (!key.label) keyEl.innerHTML = key[dataName];
-              keyEl.dataset.symbol = key[dataName];
-              break;
-            case "label":
-              keyEl.innerHTML = key[dataName];
-              break;
-            default:
-              keyEl.dataset[dataName] = key[dataName];
-          }
-        }
-        rowEl.appendChild(keyEl);
-      }
-
-      row.forEach(foreachRow);
-      self.keyboardEl.appendChild(rowEl);
-    }
-
-    Keyboard.layout[self.activeLayoutName].forEach(foreachLayout);
-    // bind events
-    self.keyboardEl.addEventListener("mousedown", handleKeyboardEvents.bind(self));
-    self.keyboardEl.addEventListener("touchstart", handleKeyboardEvents.bind(self));
-    // Append keys to el
-    el.appendChild(self.keyboardEl);
   };
 
   // Control which el is being updated
