@@ -27,3 +27,6 @@
   display: inline-block;
   background: #636363;
 }
+.keyboard-key:active {
+  background: #777777;
+}

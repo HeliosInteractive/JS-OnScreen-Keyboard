@@ -31,10 +31,16 @@
   - [x] 'func' property in layout files used to differentiate b/c keys
   - [x] public function to attach functions to run for keys w/ diff func
   - [x] Keys can have same func but different additional info too, and handlers have access to that
+- [ ] Bug: When input's content is longer than input box's width, it should move the cursor to show the caret
+  - Easy way to do this is via setting `focusedEl.scrollLeft` to a high number. This would however always jump to the end of input no matter where the caret's at.
+  - To make this intelligent we need some method of calculating caret's pixel location?
 
-- [ ] Generated keys have a structure that allows easy style changing via CSS
+- [x] Generated keys have a structure that allows easy style changing via CSS
 
 - [ ] Platform testing
 - [ ] Click, Touch, Chrome's touch simulation, and FastClick.js driven touch event should all behave the same
 - [ ] Getters to make many type checkings easier?
-  - [ ] `setLayout`
+  - [x] `setLayout`
+  - [ ] `focusedEl`?
+  - [ ] `keyboardEl`?
+- [ ] Support more browsers than just `Chrome`
