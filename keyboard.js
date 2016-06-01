@@ -70,8 +70,7 @@ if( !exports ) var exports = {};
     e.preventDefault();
     // Check to make sure it's a key that's pressed
     if (!e.target.classList.contains("keyboard-key")) return;
-    // Pipe key's data to an object
-    var keyInfo = Object.assign({}, e.target.dataset);
+    var keyInfo = e.target.dataset;
 
     // handle special yet common keys like backspace
     if (keyInfo.func) {
