@@ -80,6 +80,23 @@ if( !exports ) var exports = {};
 
     // Update focused element if there is one
     if (!keyInfo.symbol || !this.focusedEl) return;
+    // input[type=number] clears the field if we set value to some strings
+    // Working around it by checking if value will be numbers
+    if (this.focusedEl.type == "number") {
+      // Number(" ") or Number("2 ") would return just the number part instead of NaN. Sadly we need a special case.
+      if (keyInfo.symbol == " ") return;
+      var numberValue = this.focusedEl.value + keyInfo.symbol;
+      if (isNaN(Number(numberValue))) return;
+      this.focusedEl.value = numberValue;
+      return;
+    }
+    // Several types of inputs don't support selections
+    try {
+      var oldStart = this.focusedEl.selectionStart;
+    } catch (e) {
+      this.focusedEl.value += keyInfo.symbol;
+      return;
+    }
     var oldStart = this.focusedEl.selectionStart;
     var oldEnd = this.focusedEl.selectionEnd;
     var oldText = this.focusedEl.value;
@@ -99,6 +116,12 @@ if( !exports ) var exports = {};
   Keyboard.prototype.customFunc = {
     backspace: function(keyInfo) {
       if (!this.focusedEl) return;
+      try {
+        var oldStart = this.focusedEl.selectionStart;
+      } catch (e) {
+        this.focusedEl.value = this.focusedEl.value.slice(0, -1);
+        return;
+      }
       var oldStart = this.focusedEl.selectionStart;
       var oldEnd = this.focusedEl.selectionEnd;
       var oldText = this.focusedEl.value;
