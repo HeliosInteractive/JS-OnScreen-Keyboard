@@ -71,13 +71,12 @@ if( !exports ) var exports = {};
     // Check to make sure it's a key that's pressed
     if (!e.target.classList.contains("keyboard-key")) return;
     var keyInfo = e.target.dataset;
-
-    // handle special yet common keys like backspace
-    if (keyInfo.func) {
-      handleFuncKeys.bind(this)(keyInfo);
-      return;
-    }
-
+    this.preHandleHook(e);
+    handleFuncKeys.bind(this)(keyInfo);
+    updateText.bind(this)(keyInfo);
+    this.postHandleHook(e);
+  };
+  var updateText = function(keyInfo) {
     // Update focused element if there is one
     if (!keyInfo.symbol || !this.focusedEl) return;
     // input[type=number] clears the field if we set value to some strings
@@ -105,6 +104,7 @@ if( !exports ) var exports = {};
     this.focusedEl.setSelectionRange(newCaretPosition, newCaretPosition);
   };
   var handleFuncKeys = function(keyInfo) {
+    if (!keyInfo.func) return;
     // Run custom functions by the developer
     if (this.customFunc[keyInfo.func]) {
       this.customFunc[keyInfo.func].bind(this)(keyInfo);
@@ -151,6 +151,12 @@ if( !exports ) var exports = {};
     this.keyboardEl.remove();
     this.keyboardEl = null;
     this.blur();
+  };
+  Keyboard.prototype.preHandleHook = function(event){
+    // Override this.
+  };
+  Keyboard.prototype.postHandleHook = function(event){
+    // Override this.
   };
 
   Keyboard.layout = {};
