@@ -14,8 +14,33 @@ if( !exports ) var exports = {};
     el.addEventListener('focus', this.focus.bind(this));
     el.addEventListener('blur', this.blur.bind(this));
 
+    el.addEventListener('input', function(e){
+
+      // set selection to the end of the input
+      el.setSelectionRange(el.value.length, el.value.length);
+      el.scrollLeft = el.scrollWidth;
+    });
+
     this.maxlength = el.getAttribute('maxlength');
     if( !this.maxlength ) this.maxlength = 9999999999;
+
+    function dispatchEvent(event, keyInfo){
+
+      var event = new Event(event);
+      event.key = keyInfo.symbol;    // just enter the char you want to send
+      event.keyCode = event.key.charCodeAt(0);
+      event.which = event.keyCode;
+      event.altKey = false;
+      event.ctrlKey = true;
+      event.shiftKey = false;
+      event.metaKey = false;
+      el.dispatchEvent(event);
+    }
+
+    this.onEvent = function(keyInfo, e){
+      dispatchEvent("keydown", keyInfo);
+      dispatchEvent("input", keyInfo);
+    };
 
     el.onEvent = function(keyInfo, e){
 
@@ -26,6 +51,7 @@ if( !exports ) var exports = {};
     };
     el.onSpecial = function(keyInfo){
 
+      dispatchEvent("input", keyInfo.special);
       if( keyInfo.special === 'backspace' )
         this.value = this.value.substr(0, this.value.length-1);
     };
@@ -35,11 +61,13 @@ if( !exports ) var exports = {};
     var self = this;
     self.Keyboard.show(e.target.layout);
     this.Keyboard.on('key', this.el.onEvent.bind(this.el));
+    this.Keyboard.on('keyInternal', this.onEvent.bind(this.el));
     this.Keyboard.on('special', this.el.onSpecial.bind(this.el));
   };
   Element.prototype.blur = function(e){
     this.Keyboard.hide(e.target.layout);
     this.Keyboard.off('key', this.el.onEvent.bind(this.el));
+    this.Keyboard.off('keyInternal', this.onEvent.bind(this.el));
     this.Keyboard.off('special', this.el.onSpecial.bind(this.el));
   };
 
@@ -158,6 +186,9 @@ if( !exports ) var exports = {};
     }
 
     keys.forEach(function(key){
+      self.listeners['keyInternal'].forEach(function(action){
+        action(keyInfo, key);
+      });
       self.listeners['key'].forEach(function(action){
         action(keyInfo, key);
       });
