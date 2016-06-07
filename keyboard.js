@@ -5,6 +5,8 @@ if( !exports ) var exports = {};
 
   function Element(Keyboard, el){
 
+    var self = this;
+
     this.el = el;
     this.Keyboard = Keyboard;
     this.listeners = {keypresskeypress:[]};
@@ -12,19 +14,30 @@ if( !exports ) var exports = {};
     el.addEventListener('focus', this.focus.bind(this));
     el.addEventListener('blur', this.blur.bind(this));
 
+    this.maxlength = el.getAttribute('maxlength');
+    if( !this.maxlength ) this.maxlength = 9999999999;
+
     el.onKeyPress = function(keyInfo, e){
+      if( this.value.length >= this.maxlength ){
+        return;
+      }
       this.value += e;
+    };
+    el.onBackspace = function(){
+      this.value = this.value.substr(0, this.value.length-1);
     };
   }
 
   Element.prototype.focus = function(e){
     var self = this;
     self.Keyboard.show(e.target.layout);
-    this.Keyboard.on('key', this.el.onKeyPress.bind(this.el))
+    this.Keyboard.on('key', this.el.onKeyPress.bind(this.el));
+    this.Keyboard.on('backspace', this.el.onBackspace.bind(this.el));
   };
   Element.prototype.blur = function(e){
     this.Keyboard.hide(e.target.layout);
-    this.Keyboard.off('key', this.el.onKeyPress.bind(this.el))
+    this.Keyboard.off('key', this.el.onKeyPress.bind(this.el));
+    this.Keyboard.off('backspace', this.el.onBackspace.bind(this.el));
   };
 
   function Keyboard(inputs, holder){
@@ -36,7 +49,7 @@ if( !exports ) var exports = {};
     });
 
     this.active = false;
-    this.listeners = {key:[]};
+    this.listeners = {key:[],backspace:[]};
     this.keyboardEl = null;
     this.layout = null;
     this.keyboardEl = document.createElement("div");
@@ -127,8 +140,10 @@ if( !exports ) var exports = {};
     if (!e.target.classList.contains("keyboard-key")) return;
     var keyInfo = e.target.dataset;
 
-    if( keyInfo.func && keyInfo.func === 'backspace'){
-      // TODO: handle backspace
+    if( keyInfo.backspace){
+      return self.listeners['backspace'].forEach(function(action){
+        action(keyInfo);
+      });
     }
 
     if( !keyInfo.symbol ) return;
@@ -167,7 +182,7 @@ if( !exports ) var exports = {};
         {"symbol": "7"},
         {"symbol": "8"},
         {"symbol": "9"},
-        {"label": "\u21E6", "func": "backspace"}
+        {"label": "\u21E6", "backspace":true}
       ],
       [
         // {"label": "tab", "func": "tab"},
