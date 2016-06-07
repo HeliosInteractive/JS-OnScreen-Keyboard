@@ -17,7 +17,8 @@ if( !exports ) var exports = {};
     this.maxlength = el.getAttribute('maxlength');
     if( !this.maxlength ) this.maxlength = 9999999999;
 
-    el.onKeyPress = function(keyInfo, e){
+    el.onEvent = function(keyInfo, e){
+
       if( this.value.length >= this.maxlength ){
         return;
       }
@@ -33,12 +34,12 @@ if( !exports ) var exports = {};
   Element.prototype.focus = function(e){
     var self = this;
     self.Keyboard.show(e.target.layout);
-    this.Keyboard.on('key', this.el.onKeyPress.bind(this.el));
+    this.Keyboard.on('key', this.el.onEvent.bind(this.el));
     this.Keyboard.on('special', this.el.onSpecial.bind(this.el));
   };
   Element.prototype.blur = function(e){
     this.Keyboard.hide(e.target.layout);
-    this.Keyboard.off('key', this.el.onKeyPress.bind(this.el));
+    this.Keyboard.off('key', this.el.onEvent.bind(this.el));
     this.Keyboard.off('special', this.el.onSpecial.bind(this.el));
   };
 
