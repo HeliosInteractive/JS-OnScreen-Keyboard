@@ -23,8 +23,10 @@ if( !exports ) var exports = {};
       }
       this.value += e;
     };
-    el.onBackspace = function(){
-      this.value = this.value.substr(0, this.value.length-1);
+    el.onSpecial = function(keyInfo){
+
+      if( keyInfo.special === 'backspace' )
+        this.value = this.value.substr(0, this.value.length-1);
     };
   }
 
@@ -32,12 +34,12 @@ if( !exports ) var exports = {};
     var self = this;
     self.Keyboard.show(e.target.layout);
     this.Keyboard.on('key', this.el.onKeyPress.bind(this.el));
-    this.Keyboard.on('backspace', this.el.onBackspace.bind(this.el));
+    this.Keyboard.on('special', this.el.onSpecial.bind(this.el));
   };
   Element.prototype.blur = function(e){
     this.Keyboard.hide(e.target.layout);
     this.Keyboard.off('key', this.el.onKeyPress.bind(this.el));
-    this.Keyboard.off('backspace', this.el.onBackspace.bind(this.el));
+    this.Keyboard.off('special', this.el.onSpecial.bind(this.el));
   };
 
   function Keyboard(inputs, holder){
@@ -49,18 +51,13 @@ if( !exports ) var exports = {};
     });
 
     this.active = false;
-    this.listeners = {key:[],backspace:[]};
+    this.listeners = {key:[],special:[]};
     this.keyboardEl = null;
     this.layout = null;
     this.keyboardEl = document.createElement("div");
     this.keyboardEl.classList.add("keyboard-container");
     this.keyboardEl.addEventListener("mousedown", handleKeyboardEvents.bind(this));
     this.keyboardEl.addEventListener("touchstart", handleKeyboardEvents.bind(this));
-
-    this.setLayout = function (layoutName) {
-      if (!global.Keyboard.layout[layoutName]) throw new Error("keyboard initiation: Missing layout: " + layoutName);
-      self.layout = layoutName;
-    };
 
     // Generate keyboard HTML, bind events, insert them to given element
     this.show = function (layout) {
@@ -70,7 +67,6 @@ if( !exports ) var exports = {};
         return;
       }
       this.active = true;
-      var update = false;
 
       self.layout = layout;
       this.keyboardEl.innerHTML = "";
@@ -120,9 +116,13 @@ if( !exports ) var exports = {};
     }
 
     this.on = function(evt, action){
+      if( !this.listeners[evt] ){
+        this.listeners[evt] = [];
+      }
       this.listeners[evt].push(action);
     };
     this.off = function(evt, action){
+      if( !this.listeners[evt] ) return;
       this.listeners[evt] = this.listeners[evt].filter(function(listener){
         return action.toString() !== listener.toString();
       });
@@ -140,8 +140,8 @@ if( !exports ) var exports = {};
     if (!e.target.classList.contains("keyboard-key")) return;
     var keyInfo = e.target.dataset;
 
-    if( keyInfo.backspace){
-      return self.listeners['backspace'].forEach(function(action){
+    if( keyInfo.special){
+      return self.listeners.special.forEach(function(action){
         action(keyInfo);
       });
     }
@@ -182,7 +182,7 @@ if( !exports ) var exports = {};
         {"symbol": "7"},
         {"symbol": "8"},
         {"symbol": "9"},
-        {"label": "\u21E6", "backspace":true}
+        {"label": "\u21E6", "special":"backspace"}
       ],
       [
         // {"label": "tab", "func": "tab"},
