@@ -2,37 +2,73 @@ if( !exports ) var exports = {};
 (function(exports, global){
   "use strict";
 
-  function Keyboard(layoutName){
 
-    var activeLayoutName;
+  function Element(Keyboard, el){
 
-    this.setLayout = function(layoutName) {
-      if (!Keyboard.layout[layoutName]) throw new Error("keyboard initiation: Missing layout: " + layoutName);
-      activeLayoutName = layoutName;
+    this.el = el;
+    this.Keyboard = Keyboard;
+    this.listeners = {keypresskeypress:[]};
+    el.layout = global.Keyboard.layout[el.type] ? el.type : '_default';
+    el.addEventListener('focus', this.focus.bind(this));
+    el.addEventListener('blur', this.blur.bind(this));
+
+    el.onKeyPress = function(keyInfo, e){
+      this.value += e;
+    };
+  }
+
+  Element.prototype.focus = function(e){
+    var self = this;
+    self.Keyboard.show(e.target.layout);
+    this.Keyboard.on('key', this.el.onKeyPress.bind(this.el))
+  };
+  Element.prototype.blur = function(e){
+    this.Keyboard.hide(e.target.layout);
+    this.Keyboard.off('key', this.el.onKeyPress.bind(this.el))
+  };
+
+  function Keyboard(inputs, holder){
+
+    var self = this;
+
+    Array.prototype.slice.call(inputs, 0).forEach(function(input){
+      input.setAttribute('data-keyboard', new Element(self, input));
+    });
+
+    this.active = false;
+    this.listeners = {key:[]};
+    this.keyboardEl = null;
+    this.layout = null;
+    this.keyboardEl = document.createElement("div");
+    this.keyboardEl.classList.add("keyboard-container");
+    this.keyboardEl.addEventListener("mousedown", handleKeyboardEvents.bind(this));
+    this.keyboardEl.addEventListener("touchstart", handleKeyboardEvents.bind(this));
+
+    this.setLayout = function (layoutName) {
+      if (!global.Keyboard.layout[layoutName]) throw new Error("keyboard initiation: Missing layout: " + layoutName);
+      self.layout = layoutName;
     };
 
-    this.setLayout(layoutName);
-
-    this.focusedEl = null;
-    this.keyboardEl = null;
-
     // Generate keyboard HTML, bind events, insert them to given element
-    this.placeIn = function (el) {
+    this.show = function (layout) {
 
-      var self = this;
-      if (!Keyboard.layout[activeLayoutName]) throw new Error("Keyboard.placeIn(): Missing layout: " + activeLayoutName);
-      // Create container
-      self.keyboardEl = document.createElement("div");
-      self.keyboardEl.classList.add("keyboard-container");
-      // Create elements based off layout
+      if (!global.Keyboard.layout[layout]) throw new Error("keyboard initiation: Missing layout: " + layout);
+      if( self.layout && layout === self.layout && this.active){
+        return;
+      }
+      this.active = true;
+      var update = false;
 
-      function foreachLayout(row, rowIndex, layout){
+      self.layout = layout;
+      this.keyboardEl.innerHTML = "";
+
+      function foreachLayout(row, rowIndex, layout) {
 
         var rowEl = document.createElement("div");
         rowEl.classList.add("keyboard-row");
         rowEl.classList.add("keyboard-row--" + rowIndex);
 
-        function foreachRow(key, keyIndex, row){
+        function foreachRow(key, keyIndex, row) {
           var keyEl = document.createElement("div");
           keyEl.classList.add("keyboard-key");
           keyEl.classList.add("keyboard-key--" + keyIndex);
@@ -52,113 +88,121 @@ if( !exports ) var exports = {};
           }
           rowEl.appendChild(keyEl);
         }
-
         row.forEach(foreachRow);
         self.keyboardEl.appendChild(rowEl);
       }
 
-      Keyboard.layout[activeLayoutName].forEach(foreachLayout);
-      // bind events
-      self.keyboardEl.addEventListener("mousedown", handleKeyboardEvents.bind(self));
-      self.keyboardEl.addEventListener("touchstart", handleKeyboardEvents.bind(self));
+      global.Keyboard.layout[self.layout].forEach(foreachLayout);
       // Append keys to el
-      el.appendChild(self.keyboardEl);
+
+      holder.appendChild(self.keyboardEl);
     };
+
+    this.hide = function(){
+      self.active = false;
+      setTimeout(function(){
+        if( self.active ) return;
+        self.keyboardEl.innerHTML = "";
+      },25);
+    }
+
+    this.on = function(evt, action){
+      this.listeners[evt].push(action);
+    };
+    this.off = function(evt, action){
+      this.listeners[evt] = this.listeners[evt].filter(function(listener){
+        return action.toString() !== listener.toString();
+      });
+    };
+
   };
+
+
   // We would like to pipe all keyboard events through one handler
   var handleKeyboardEvents = function (e) {
+
+    var self = this;
     e.preventDefault();
     // Check to make sure it's a key that's pressed
     if (!e.target.classList.contains("keyboard-key")) return;
     var keyInfo = e.target.dataset;
-    this.preHandleHook(e);
-    handleFuncKeys.bind(this)(keyInfo);
-    updateText.bind(this)(keyInfo);
-    this.postHandleHook(e);
-  };
-  var updateText = function(keyInfo) {
-    // Update focused element if there is one
-    if (!keyInfo.symbol || !this.focusedEl) return;
-    // input[type=number] clears the field if we set value to some strings
-    // Working around it by checking if value will be numbers
-    if (this.focusedEl.type == "number") {
-      // Number(" ") or Number("2 ") would return just the number part instead of NaN. Sadly we need a special case.
-      if (keyInfo.symbol == " ") return;
-      var numberValue = this.focusedEl.value + keyInfo.symbol;
-      if (isNaN(Number(numberValue))) return;
-      this.focusedEl.value = numberValue;
-      return;
+
+    if( keyInfo.func && keyInfo.func === 'backspace'){
+      // TODO: handle backspace
     }
-    // Several types of inputs don't support selections
-    try {
-      var oldStart = this.focusedEl.selectionStart;
-    } catch (e) {
-      this.focusedEl.value += keyInfo.symbol;
-      return;
+
+    if( !keyInfo.symbol ) return;
+
+    var keys;
+    if (keyInfo.symbol.length === 1) {
+      keys = [keyInfo.symbol];
     }
-    var oldStart = this.focusedEl.selectionStart;
-    var oldEnd = this.focusedEl.selectionEnd;
-    var oldText = this.focusedEl.value;
-    this.focusedEl.value = oldText.substring(0, oldStart) + keyInfo.symbol + oldText.substring(oldEnd);
-    var newCaretPosition = this.focusedEl.value.length - (oldText.length - oldEnd);
-    this.focusedEl.setSelectionRange(newCaretPosition, newCaretPosition);
-  };
-  var handleFuncKeys = function(keyInfo) {
-    if (!keyInfo.func) return;
-    // Run custom functions by the developer
-    if (this.customFunc[keyInfo.func]) {
-      this.customFunc[keyInfo.func].bind(this)(keyInfo);
-    } else {
-      console.warn("Keyboard: custom key '"+keyInfo.func+"' doesn't have a corresponding function.");
+    else {
+      keys = keyInfo.symbol.split('');
     }
-  };
-  // Add common custom functions here
-  Keyboard.prototype.customFunc = {
-    backspace: function(keyInfo) {
-      if (!this.focusedEl) return;
-      try {
-        var oldStart = this.focusedEl.selectionStart;
-      } catch (e) {
-        this.focusedEl.value = this.focusedEl.value.slice(0, -1);
-        return;
-      }
-      var oldStart = this.focusedEl.selectionStart;
-      var oldEnd = this.focusedEl.selectionEnd;
-      var oldText = this.focusedEl.value;
-      if (oldStart == oldEnd) {
-        // no selection; remove one character from old
-        this.focusedEl.value = oldText.substring(0, oldStart - 1) + oldText.substring(oldEnd);
-      } else {
-        this.focusedEl.value = oldText.substring(0, oldStart) + oldText.substring(oldEnd);
-      }
-      var newCaretPosition = this.focusedEl.value.length - (oldText.length - oldEnd);
-      this.focusedEl.setSelectionRange(newCaretPosition, newCaretPosition);
-    }
+
+    keys.forEach(function(key){
+      self.listeners['key'].forEach(function(action){
+        action(keyInfo, key);
+      });
+    });
+
   };
 
-  // Control which el is being updated
-  Keyboard.prototype.focus = function (el) {
-    this.focusedEl = el;
-  };
-  Keyboard.prototype.blur = function () {
-    this.focusedEl = null;
-  };
-  // Unbind the events, destroy the elements
-  Keyboard.prototype.destroy = function () {
-    if (this.keyboardEl === null) throw new Error("Keyboard.destroy() error: Keyboard HTML Elements aren't present");
-    this.keyboardEl.removeEventListener("mousedown", handleKeyboardEvents.bind(this));
-    this.keyboardEl.removeEventListener("touchstart", handleKeyboardEvents.bind(this));
-    this.keyboardEl.remove();
-    this.keyboardEl = null;
-    this.blur();
-  };
-  Keyboard.prototype.preHandleHook = function(event){
-    // Override this.
-  };
-  Keyboard.prototype.postHandleHook = function(event){
-    // Override this.
-  };
-
-  Keyboard.layout = {};
   global.Keyboard = Keyboard;
+  global.Keyboard.layout = {
+    _default: [
+      [
+        {"symbol": "Q"},
+        {"symbol": "W"},
+        {"symbol": "E"},
+        {"symbol": "R"},
+        {"symbol": "T"},
+        {"symbol": "Y"},
+        {"symbol": "U"},
+        {"symbol": "I"},
+        {"symbol": "O"},
+        {"symbol": "P"},
+        {"symbol": ".com"},
+        {"symbol": "7"},
+        {"symbol": "8"},
+        {"symbol": "9"},
+        {"label": "\u21E6", "func": "backspace"}
+      ],
+      [
+        // {"label": "tab", "func": "tab"},
+        {"symbol": "A"},
+        {"symbol": "S"},
+        {"symbol": "D"},
+        {"symbol": "F"},
+        {"symbol": "G"},
+        {"symbol": "H"},
+        {"symbol": "J"},
+        {"symbol": "K"},
+        {"symbol": "L"},
+        {"symbol": "@"},
+        {"symbol": ".net"},
+        {"symbol": "4"},
+        {"symbol": "5"},
+        {"symbol": "6"}
+      ],
+      [
+        {"symbol": "Z"},
+        {"symbol": "X"},
+        {"symbol": "C"},
+        {"symbol": "V"},
+        {"symbol": "B"},
+        {"symbol": "N"},
+        {"symbol": "M"},
+        {"symbol": "."},
+        {"symbol": "_"},
+        {"symbol": "-"},
+        {"symbol": " ", "label": "space"},
+        {"symbol": "0"},
+        {"symbol": "1"},
+        {"symbol": "2"},
+        {"symbol": "3"}
+      ]
+    ]
+  };
 })(exports || {}, window);

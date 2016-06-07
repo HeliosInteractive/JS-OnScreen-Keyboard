@@ -1,19 +1,14 @@
 "use strict";
 
-var keyboard = new Keyboard("basic");
-var hostEl = document.querySelector(".keyboard-host");
-var inputEl = document.querySelector(".input-name");
 
-// Generate keyboard HTML, bind events, insert them to given element
-keyboard.placeIn(hostEl);
+var inputs = document.forms["demo"].getElementsByTagName("input");
 
-// Keyboard allows hooking functions to execute for special keys
-// e.g.
-// keyboard.customFunc["tab"] = function switchInput(keyInfo){
-// ...code
-// }
+var keyboardHost = document.querySelector('.keyboard-host');
+var keyboard = new window.Keyboard(inputs, keyboardHost);
 
-// Make keyboard's events update input el's content
-keyboard.focus(inputEl);
-
-// keyboard.destroy();
+inputs[0].onKeyPress = function(info, key){
+  console.log('custom keypress');
+  // set your own interceptor here
+  this.value += key;
+  //console.log('pressed', info, key, this)
+}
