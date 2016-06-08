@@ -5,24 +5,19 @@ if( !exports ) var exports = {};
 
   function Element(Keyboard, el){
 
-    var self = this;
-
-    this.el = el;
     this.Keyboard = Keyboard;
     this.listeners = {keypresskeypress:[]};
+    this.maxlength = el.getAttribute('maxlength');
+
     el.layout = global.Keyboard.layout[el.type] ? el.type : '_default';
     el.addEventListener('focus', this.focus.bind(this));
     el.addEventListener('blur', this.blur.bind(this));
-
-    el.addEventListener('input', function(e){
-
-      // set selection to the end of the input
-      el.setSelectionRange(el.value.length, el.value.length);
-      el.scrollLeft = el.scrollWidth;
-    });
-
-    this.maxlength = el.getAttribute('maxlength');
-    if( !this.maxlength ) this.maxlength = 9999999999;
+    el.addEventListener('keydown', function(e){
+      if( this.value.length >= this.maxlength ){
+        return;
+      }
+      this.value += e.key;
+    })
 
     function dispatchEvent(event, keyInfo){
 
@@ -37,38 +32,18 @@ if( !exports ) var exports = {};
       el.dispatchEvent(event);
     }
 
-    this.onEvent = function(keyInfo, e){
-      dispatchEvent("keydown", keyInfo);
-      dispatchEvent("input", keyInfo);
-    };
-
-    el.onEvent = function(keyInfo, e){
-
-      if( this.value.length >= this.maxlength ){
-        return;
-      }
-      this.value += e;
-    };
-    el.onSpecial = function(keyInfo){
-
-      dispatchEvent("input", keyInfo.special);
-      if( keyInfo.special === 'backspace' )
-        this.value = this.value.substr(0, this.value.length-1);
+    this.onEvent = function(keyInfo){
+      dispatchEvent('keydown', keyInfo);
     };
   }
 
   Element.prototype.focus = function(e){
-    var self = this;
-    self.Keyboard.show(e.target.layout);
-    this.Keyboard.on('key', this.el.onEvent.bind(this.el));
-    this.Keyboard.on('keyInternal', this.onEvent.bind(this.el));
-    this.Keyboard.on('special', this.el.onSpecial.bind(this.el));
+    this.Keyboard.show(e.target.layout);
+    this.Keyboard.on('key', this.onEvent);
   };
   Element.prototype.blur = function(e){
     this.Keyboard.hide(e.target.layout);
-    this.Keyboard.off('key', this.el.onEvent.bind(this.el));
-    this.Keyboard.off('keyInternal', this.onEvent.bind(this.el));
-    this.Keyboard.off('special', this.el.onSpecial.bind(this.el));
+    this.Keyboard.off('key', this.onEvent);
   };
 
   function Keyboard(inputs, holder){
@@ -169,13 +144,13 @@ if( !exports ) var exports = {};
     if (!e.target.classList.contains("keyboard-key")) return;
     var keyInfo = e.target.dataset;
 
-    if( keyInfo.special){
+    /*if( keyInfo.special){
       return self.listeners.special.forEach(function(action){
         action(keyInfo);
       });
     }
 
-    if( !keyInfo.symbol ) return;
+    if( !keyInfo.symbol ) return;*/
 
     var keys;
     if (keyInfo.symbol.length === 1) {
@@ -186,9 +161,6 @@ if( !exports ) var exports = {};
     }
 
     keys.forEach(function(key){
-      self.listeners['keyInternal'].forEach(function(action){
-        action(keyInfo, key);
-      });
       self.listeners['key'].forEach(function(action){
         action(keyInfo, key);
       });
@@ -214,7 +186,7 @@ if( !exports ) var exports = {};
         {"symbol": "7"},
         {"symbol": "8"},
         {"symbol": "9"},
-        {"label": "\u21E6", "special":"backspace"}
+        {"label": "\u21E6", "symbol":"backspace"}
       ],
       [
         // {"label": "tab", "func": "tab"},
