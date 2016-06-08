@@ -2,6 +2,9 @@ if( !exports ) var exports = {};
 (function(exports, global){
   "use strict";
 
+  function splice(str, index, count, add) {
+    return str.slice(0, index) + (add || "") + str.slice(index + count);
+  }
 
   function Element(Keyboard, el){
 
@@ -12,11 +15,18 @@ if( !exports ) var exports = {};
     el.layout = global.Keyboard.layout[el.type] ? el.type : '_default';
     el.addEventListener('focus', this.focus.bind(this));
     el.addEventListener('blur', this.blur.bind(this));
+    el.addEventListener('input', function(e){
+      // set selection to the end of the input
+      //el.scrollLeft = el.scrollWidth;
+    });
     el.addEventListener('keydown', function(e){
+
       if( this.value.length >= this.maxlength ){
         return;
       }
-      this.value += e.key;
+      var pos = el.selectionStart;
+      this.value = splice(this.value, el.selectionStart,0,e.key);
+      this.setSelectionRange(pos, pos); // reset the position after the splice
     })
 
     function dispatchEvent(event, keyInfo){
@@ -34,6 +44,7 @@ if( !exports ) var exports = {};
 
     this.onEvent = function(keyInfo){
       dispatchEvent('keydown', keyInfo);
+      dispatchEvent('input', keyInfo);
     };
   }
 
