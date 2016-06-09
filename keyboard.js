@@ -65,7 +65,7 @@ if( !exports ) var exports = {};
     var self = this;
 
     Array.prototype.slice.call(inputs, 0).forEach(function(input){
-      input.setAttribute('data-keyboard', new Element(self, input));
+      input.Keyboard = new Element(self, input);
     });
 
     this.active = false;
