@@ -13,19 +13,6 @@ if( !exports ) var exports = {};
     this.maxlength = el.getAttribute('maxlength');
 
     el.layout = global.Keyboard.layout[el.type] ? el.type : '_default';
-    el.addEventListener('focus', this.focus.bind(this));
-    el.addEventListener('blur', this.blur.bind(this));
-    el.addEventListener('keydown', function(e){
-      e.preventDefault();
-      console.log('keydown', e);
-      if( this.value.length >= this.maxlength ){
-        return;
-      }
-      var pos = el.selectionStart + 1;
-      this.value = splice(this.value, el.selectionStart,0,e.key || String.fromCharCode(e.keyCode));
-      this.setSelectionRange(pos, pos); // reset the position after the splice
-      this.scrollLeft = this.scrollWidth;
-    })
 
     function dispatchEvent(event, keyInfo){
 
@@ -45,6 +32,23 @@ if( !exports ) var exports = {};
     this.onEvent = function(keyInfo){
       dispatchEvent('keydown', keyInfo);
     };
+
+    this.keydownfunc = function(e){
+
+      e.preventDefault();
+      console.log('keydown', e);
+      if( this.value.length >= this.maxlength ){
+        return;
+      }
+      var pos = el.selectionStart + 1;
+      this.value = splice(this.value, el.selectionStart,0,e.key || String.fromCharCode(e.keyCode));
+      this.setSelectionRange(pos, pos); // reset the position after the splice
+      this.scrollLeft = this.scrollWidth;
+    };
+
+    el.addEventListener('focus', this.focus.bind(this));
+    el.addEventListener('blur', this.blur.bind(this));
+    el.addEventListener('keydown', this.keydownfunc);
   }
 
   Element.prototype.focus = function(e){
@@ -139,6 +143,20 @@ if( !exports ) var exports = {};
       if( !this.listeners[evt] ) return;
       this.listeners[evt] = this.listeners[evt].filter(function(listener){
         return action.toString() !== listener.toString();
+      });
+    };
+
+    /**
+     * Add input(s) after the fact
+     * @param inputs
+     */
+    this.add = function(inputs){
+
+      if(!Array.isArray(inputs))
+        inputs = [inputs];
+
+      Array.prototype.slice.call(inputs, 0).forEach(function(input){
+        input.setAttribute('data-keyboard', new Element(self, input));
       });
     };
 
