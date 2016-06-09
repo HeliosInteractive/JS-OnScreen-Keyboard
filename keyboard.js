@@ -9,28 +9,27 @@ if( !exports ) var exports = {};
   function Element(Keyboard, el){
 
     this.Keyboard = Keyboard;
-    this.listeners = {keypresskeypress:[]};
     this.maxlength = el.getAttribute('maxlength');
 
     el.layout = global.Keyboard.layout[el.type] ? el.type : '_default';
 
-    function dispatchEvent(event, keyInfo){
+    function dispatchEvent(event, key){
 
       var event = new KeyboardEvent(event,{
-        code: 'Key' + keyInfo.symbol,
-        keyCode : keyInfo.symbol.charCodeAt(0),
-        which : keyInfo.symbol.charCodeAt(0),
+        key: key,
+        code: 'Key' + key,
+        keyCode : key.charCodeAt(0),
+        which : key.charCodeAt(0),
         altKey : false,
         ctrlKey : false,
         shiftKey : false,
         metaKey : false
       });
-      event.key = keyInfo.symbol;    // just enter the char you want to send
       el.dispatchEvent(event);
     }
 
-    this.onEvent = function(keyInfo){
-      dispatchEvent('keydown', keyInfo);
+    this.onEvent = function(key){
+      dispatchEvent('keydown', key);
     };
 
     this.keydownfunc = function(e){
@@ -190,7 +189,7 @@ if( !exports ) var exports = {};
 
     keys.forEach(function(key){
       self.listeners['key'].forEach(function(action){
-        action(keyInfo, key);
+        action(key);
       });
     });
 
