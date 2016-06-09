@@ -15,36 +15,35 @@ if( !exports ) var exports = {};
     el.layout = global.Keyboard.layout[el.type] ? el.type : '_default';
     el.addEventListener('focus', this.focus.bind(this));
     el.addEventListener('blur', this.blur.bind(this));
-    el.addEventListener('input', function(e){
-      // set selection to the end of the input
-      //el.scrollLeft = el.scrollWidth;
-    });
     el.addEventListener('keydown', function(e){
-
+      e.preventDefault();
+      console.log('keydown', e);
       if( this.value.length >= this.maxlength ){
         return;
       }
-      var pos = el.selectionStart;
-      this.value = splice(this.value, el.selectionStart,0,e.key);
+      var pos = el.selectionStart + 1;
+      this.value = splice(this.value, el.selectionStart,0,e.key || String.fromCharCode(e.keyCode));
       this.setSelectionRange(pos, pos); // reset the position after the splice
+      this.scrollLeft = this.scrollWidth;
     })
 
     function dispatchEvent(event, keyInfo){
 
-      var event = new Event(event);
+      var event = new KeyboardEvent(event,{
+        code: 'Key' + keyInfo.symbol,
+        keyCode : keyInfo.symbol.charCodeAt(0),
+        which : keyInfo.symbol.charCodeAt(0),
+        altKey : false,
+        ctrlKey : false,
+        shiftKey : false,
+        metaKey : false
+      });
       event.key = keyInfo.symbol;    // just enter the char you want to send
-      event.keyCode = event.key.charCodeAt(0);
-      event.which = event.keyCode;
-      event.altKey = false;
-      event.ctrlKey = true;
-      event.shiftKey = false;
-      event.metaKey = false;
       el.dispatchEvent(event);
     }
 
     this.onEvent = function(keyInfo){
       dispatchEvent('keydown', keyInfo);
-      dispatchEvent('input', keyInfo);
     };
   }
 
