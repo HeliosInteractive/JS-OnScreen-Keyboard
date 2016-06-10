@@ -39,7 +39,6 @@ if( !exports ) var exports = {};
 
     this.keydownfunc = function(e){
 
-      console.log('keydown', e);
       // If keydown is authentic, skip our internal update and let the default play out
       if (!e.virtual) return;
       e.preventDefault();
@@ -104,7 +103,7 @@ if( !exports ) var exports = {};
     });
 
     this.active = false;
-    this.listeners = {key:[],special:[]};
+    this.listeners = {key:[]};
     this.keyboardEl = null;
     this.layout = null;
     this.keyboardEl = document.createElement("div");
@@ -206,14 +205,6 @@ if( !exports ) var exports = {};
     // Check to make sure it's a key that's pressed
     if (!e.target.classList.contains("keyboard-key")) return;
     var keyInfo = e.target.dataset;
-
-    /*if( keyInfo.special){
-      return self.listeners.special.forEach(function(action){
-        action(keyInfo);
-      });
-    }
-
-    if( !keyInfo.symbol ) return;*/
 
     self.listeners['key'].forEach(function(action){
       action(keyInfo);
