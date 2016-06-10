@@ -6,6 +6,11 @@ if( !exports ) var exports = {};
     return str.slice(0, index) + (add || "") + str.slice(index + count);
   }
 
+  function checkSelectionSupport(type){
+    if (["text", "search", "URL", "tel", "password"].indexOf(type) == -1 ) return false;
+    return true;
+  }
+
   function Element(Keyboard, el){
 
     this.Keyboard = Keyboard;
@@ -39,7 +44,19 @@ if( !exports ) var exports = {};
       if (!e.virtual) return;
       e.preventDefault();
 
-      // TODO Implement backspace
+      var selectionSupported = checkSelectionSupport(this.type);
+
+      if (e.key == "backspace") {
+        if ( !selectionSupported ) {
+          this.value = this.value.slice(0, -1);
+        } else {
+          var pos = el.selectionStart;
+          var offset = el.selectionEnd-el.selectionStart? 0:1;
+          this.value = this.value.substring(0, el.selectionStart-offset) + this.value.slice(el.selectionEnd);
+          this.setSelectionRange(pos-offset, pos-offset);
+        }
+        return;
+      }
 
       if( this.value.length >= this.maxLength && this.maxLength != -1 ){
         return;
@@ -48,18 +65,18 @@ if( !exports ) var exports = {};
 
       // TODO Mimic selection for input elements that don't support selection api as well
         // IDEA: selection-polyfill? get caret's pixel location instead?
-      if ( ["text", "search", "URL", "tel", "password"].indexOf(this.type) == -1 ) {
+      if ( !selectionSupported ) {
         this.value += update;
-        return;
+      } else {
+        var pos = el.selectionStart + update.length;
+        this.value = splice(
+          this.value,
+          el.selectionStart,
+          el.selectionEnd-el.selectionStart,
+          e.key || String.fromCharCode(e.keyCode)
+        );
+        this.setSelectionRange(pos, pos); // reset the position after the splice
       }
-      var pos = el.selectionStart + update.length;
-      this.value = splice(
-        this.value,
-        el.selectionStart,
-        el.selectionEnd-el.selectionStart,
-        e.key || String.fromCharCode(e.keyCode)
-      );
-      this.setSelectionRange(pos, pos); // reset the position after the splice
       // TODO Calculate scroll amount based on caret position
       this.scrollLeft = this.scrollWidth;
     };
