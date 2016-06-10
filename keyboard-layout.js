@@ -4,10 +4,10 @@ Keyboard.layout.number = [
     {"symbol": "7"},
     {"symbol": "8"},
     {"symbol": "9"},
-    {"label": "\u21E6", "func": "backspace"}
+    {"label": "\u21E6", "symbol": "backspace"}
   ],
   [
-    {"label": "+/-", "func": "flipSign"},
+    {"label": "+/-", "symbol": "flipSign"},
     {"symbol": "4"},
     {"symbol": "5"},
     {"symbol": "6"}

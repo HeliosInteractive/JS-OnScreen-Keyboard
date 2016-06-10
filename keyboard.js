@@ -9,17 +9,16 @@ if( !exports ) var exports = {};
   function Element(Keyboard, el){
 
     this.Keyboard = Keyboard;
-    this.maxlength = el.getAttribute('maxlength');
 
     el.layout = global.Keyboard.layout[el.type] ? el.type : '_default';
 
-    function dispatchEvent(event, key){
+    function dispatchEvent(event, keyInfo){
 
       var event = new KeyboardEvent(event,{
-        key: key,
-        code: 'Key' + key,
-        keyCode : key.charCodeAt(0),
-        which : key.charCodeAt(0),
+        key: keyInfo.symbol,
+        code: 'Key' + keyInfo.symbol,
+        keyCode : keyInfo.symbol.charCodeAt(0),
+        which : keyInfo.symbol.charCodeAt(0),
         altKey : false,
         ctrlKey : false,
         shiftKey : false,
@@ -28,20 +27,41 @@ if( !exports ) var exports = {};
       el.dispatchEvent(event);
     }
 
-    this.onEvent = function(key){
-      dispatchEvent('keydown', key);
+    this.onEvent = function(keyInfo){
+      dispatchEvent('keydown', keyInfo);
     };
 
     this.keydownfunc = function(e){
 
+      // TODO Check if key's special
+      // against a list of special key's names
+        // IDEA: if it's special, maybe we don't block default action?
+        // If so, how would that play w/ virtual vs real?
       e.preventDefault();
       console.log('keydown', e);
-      if( this.value.length >= this.maxlength ){
+
+      // TODO Implement backspace
+
+      if( this.value.length >= this.maxLength && this.maxLength != -1 ){
         return;
       }
-      var pos = el.selectionStart + 1;
-      this.value = splice(this.value, el.selectionStart,0,e.key || String.fromCharCode(e.keyCode));
+      var update = e.key || String.fromCharCode(e.keyCode);
+
+      // TODO Mimic selection for input elements that don't support selection api as well
+        // IDEA: selection-polyfill? get caret's pixel location instead?
+      if ( ["text", "search", "URL", "tel", "password"].indexOf(this.type) == -1 ) {
+        this.value += update;
+        return;
+      }
+      var pos = el.selectionStart + update.length;
+      this.value = splice(
+        this.value,
+        el.selectionStart,
+        el.selectionEnd-el.selectionStart,
+        e.key || String.fromCharCode(e.keyCode)
+      );
       this.setSelectionRange(pos, pos); // reset the position after the splice
+      // TODO Calculate scroll amount based on caret position
       this.scrollLeft = this.scrollWidth;
     };
 
@@ -179,18 +199,8 @@ if( !exports ) var exports = {};
 
     if( !keyInfo.symbol ) return;*/
 
-    var keys;
-    if (keyInfo.symbol.length === 1) {
-      keys = [keyInfo.symbol];
-    }
-    else {
-      keys = keyInfo.symbol.split('');
-    }
-
-    keys.forEach(function(key){
-      self.listeners['key'].forEach(function(action){
-        action(key);
-      });
+    self.listeners['key'].forEach(function(action){
+      action(keyInfo);
     });
 
   };
