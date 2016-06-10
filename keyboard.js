@@ -24,6 +24,7 @@ if( !exports ) var exports = {};
         shiftKey : false,
         metaKey : false
       });
+      event.virtual = true;
       el.dispatchEvent(event);
     }
 
@@ -33,12 +34,10 @@ if( !exports ) var exports = {};
 
     this.keydownfunc = function(e){
 
-      // TODO Check if key's special
-      // against a list of special key's names
-        // IDEA: if it's special, maybe we don't block default action?
-        // If so, how would that play w/ virtual vs real?
-      e.preventDefault();
       console.log('keydown', e);
+      // If keydown is authentic, skip our internal update and let the default play out
+      if (!e.virtual) return;
+      e.preventDefault();
 
       // TODO Implement backspace
 
