@@ -1,5 +1,9 @@
 # JS OnScreen Keyboard
 
+## What do I use this for
+
+Web apps that need a touchscreen keyboard.
+
 ## How to use this
 
 ```
