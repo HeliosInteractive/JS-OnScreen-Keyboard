@@ -1,5 +1,15 @@
 # JS OnScreen Keyboard
 
+## How to use this
+
+```
+var inputs = document.forms["demo"].getElementsByTagName("input");
+var keyboardHost = document.querySelector('.keyboard-host');
+var keyboard = new window.Keyboard(inputs, keyboardHost);
+```
+
+Check out demo.html for example.
+
 ## Goals
 
 - Minimal dependency
