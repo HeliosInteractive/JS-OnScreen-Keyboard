@@ -12,6 +12,15 @@
   font-family: sans-serif;
   font-size: 26px;
   padding: 56px 24px;
+
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+.keyboard-container-hidden {
+  padding: 0;
 }
 
 .keyboard-row {

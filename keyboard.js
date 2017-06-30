@@ -63,7 +63,7 @@ if( !exports ) var exports = {};
       var update = e.key || String.fromCharCode(e.keyCode);
 
       // TODO Mimic selection for input elements that don't support selection api as well
-        // IDEA: selection-polyfill? get caret's pixel location instead?
+      // IDEA: selection-polyfill? get caret's pixel location instead?
       if ( !selectionSupported ) {
         this.value += update;
       } else {
@@ -122,6 +122,7 @@ if( !exports ) var exports = {};
 
       self.layout = layout;
       this.keyboardEl.innerHTML = "";
+      this.keyboardEl.classList.remove('keyboard-container-hidden');
 
       function foreachLayout(row, rowIndex, layout) {
 
@@ -163,6 +164,7 @@ if( !exports ) var exports = {};
       self.active = false;
       setTimeout(function(){
         if( self.active ) return;
+        self.keyboardEl.classList.add("keyboard-container-hidden");
         self.keyboardEl.innerHTML = "";
       },25);
     }
