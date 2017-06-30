@@ -2,7 +2,7 @@
   "name": "@helios-interactive/okey",
   "version": "1.0.0",
   "description": "Lightweight and easily customizable onscreen keyboard",
-  "main": "okey.js",
+  "main": "dist/@helios-interactive/okey.js",
   "directories": {
     "test": "test"
   },
