@@ -1,21 +1,27 @@
 {
-  "name": "js-onscreen-keyboard",
+  "name": "@helios-interactive/okey",
   "version": "0.0.0",
   "description": "Lightweight and easily customizable onscreen keyboard",
-  "main": "main.js",
+  "main": "okey.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "test": "mocha-phantomjs TestRunner.html"
+    "test": "mocha-phantomjs TestRunner.html",
+    "build": "grunt build"
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@helios-stash.heliosinteractive.com:7999/hlibs/js-onscreen-keyboard.git"
+    "url": "git@github.com:HeliosInteractive/JS-OnScreen-Keyboard.git"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-cssmin": "^2.2.0",
+    "grunt-contrib-uglify": "^2.0.0",
+    "load-grunt-tasks": "^3.5.2",
     "mocha": "^2.4.5",
     "mocha-phantomjs": "^4.0.2",
     "should": "^8.3.1"
