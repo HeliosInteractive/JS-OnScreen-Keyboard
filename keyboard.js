@@ -228,7 +228,7 @@ if( !exports ) var exports = {};
         {"symbol": "I"},
         {"symbol": "O"},
         {"symbol": "P"},
-        {"symbol": ".com"},
+        {"label": ".com", "symbol": ".COM"},
         {"symbol": "7"},
         {"symbol": "8"},
         {"symbol": "9"},
@@ -246,7 +246,7 @@ if( !exports ) var exports = {};
         {"symbol": "K"},
         {"symbol": "L"},
         {"symbol": "@"},
-        {"symbol": ".net"},
+        {"label": ".net", "symbol": ".NET"},
         {"symbol": "4"},
         {"symbol": "5"},
         {"symbol": "6"}
