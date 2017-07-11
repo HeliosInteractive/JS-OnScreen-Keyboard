@@ -62,6 +62,13 @@ if( !exports ) var exports = {};
       }
       var update = e.key || String.fromCharCode(e.keyCode);
 
+      // Support an input case that will capitalize letters as needed
+      if(( e.target.dataset.case === 'sentence' && (this.value.length === 0 || this.value.slice(-1) === "." || this.value.slice(-2) === ". " ))
+        || ( e.target.dataset.case === 'capitalize' && this.value.slice(-1) === " " ))
+      {
+        update = update.toUpperCase();
+      }
+
       // TODO Mimic selection for input elements that don't support selection api as well
       // IDEA: selection-polyfill? get caret's pixel location instead?
       if ( !selectionSupported ) {
@@ -72,7 +79,7 @@ if( !exports ) var exports = {};
           this.value,
           el.selectionStart,
           el.selectionEnd-el.selectionStart,
-          e.key || String.fromCharCode(e.keyCode)
+          update
         );
         this.setSelectionRange(pos, pos); // reset the position after the splice
       }
@@ -83,6 +90,7 @@ if( !exports ) var exports = {};
     el.addEventListener('focus', this.focus.bind(this));
     el.addEventListener('blur', this.blur.bind(this));
     el.addEventListener('keydown', this.keydownfunc);
+    el.addEventListener('touchstart', this.keydownfunc);
   }
 
   Element.prototype.focus = function(e){
@@ -123,6 +131,14 @@ if( !exports ) var exports = {};
       self.layout = layout;
       this.keyboardEl.innerHTML = "";
       this.keyboardEl.classList.remove('keyboard-container-hidden');
+
+      var closeButton = document.createElement("span");
+      closeButton.classList.add('keyboard-close-button');
+      closeButton.innerHTML = '✖';
+      this.keyboardEl.appendChild(closeButton);
+      closeButton.onclick = function() {
+        document.activeElement.blur()
+      }.bind(this);
 
       function foreachLayout(row, rowIndex, layout) {
 
