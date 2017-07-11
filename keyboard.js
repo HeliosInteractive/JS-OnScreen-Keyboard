@@ -139,6 +139,9 @@ if( !exports ) var exports = {};
       closeButton.onclick = function() {
         document.activeElement.blur()
       }.bind(this);
+      closeButton.ontouchstart = function() {
+        document.activeElement.blur()
+      }.bind(this);
 
       function foreachLayout(row, rowIndex, layout) {
 
