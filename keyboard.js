@@ -90,7 +90,6 @@ if( !exports ) var exports = {};
     el.addEventListener('focus', this.focus.bind(this));
     el.addEventListener('blur', this.blur.bind(this));
     el.addEventListener('keydown', this.keydownfunc);
-    el.addEventListener('touchstart', this.keydownfunc);
   }
 
   Element.prototype.focus = function(e){
@@ -117,7 +116,9 @@ if( !exports ) var exports = {};
     this.keyboardEl = document.createElement("div");
     this.keyboardEl.classList.add("keyboard-container");
     this.keyboardEl.addEventListener("mousedown", handleKeyboardEvents.bind(this));
-    this.keyboardEl.addEventListener("touchstart", handleKeyboardEvents.bind(this));
+    // TODO - find a way to enable this touchstart event again.
+    // It prevents the :active state from being triggered on keys
+    // this.keyboardEl.addEventListener("touchstart", handleKeyboardEvents.bind(this));
 
     // Generate keyboard HTML, bind events, insert them to given element
     this.show = function (layout) {
