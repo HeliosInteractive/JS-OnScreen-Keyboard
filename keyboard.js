@@ -11,6 +11,14 @@ if( !exports ) var exports = {};
     return true;
   }
 
+  function dispatchKeyboardOpenEvent(){
+    document.dispatchEvent(new CustomEvent('keyboard-open'));
+  }
+
+  function dispatchKeyboardCloseEvent(){
+    document.dispatchEvent(new CustomEvent('keyboard-close'));
+  }
+
   function Element(Keyboard, el){
 
     this.Keyboard = Keyboard;
@@ -177,12 +185,14 @@ if( !exports ) var exports = {};
       global.Keyboard.layout[self.layout].forEach(foreachLayout);
       // Append keys to el
 
+      dispatchKeyboardOpenEvent()
       holder.appendChild(self.keyboardEl);
     };
 
     this.hide = function(){
       self.active = false;
       setTimeout(function(){
+        dispatchKeyboardCloseEvent()
         if( self.active ) return;
         self.keyboardEl.classList.add("keyboard-container-hidden");
         self.keyboardEl.innerHTML = "";

@@ -32,5 +32,9 @@
     <script src="./keyboard.js" charset="utf-8"></script>
     <script src="./keyboard-layout.js" charset="utf-8"></script>
     <script src="./main.js" charset="utf-8"></script>
+    <script>
+      document.addEventListener('keyboard-open', function(){console.log('Keyboard opened')})
+      document.addEventListener('keyboard-close', function(){console.log('Keyboard closed')})
+    </script>
   </body>
 </html>
