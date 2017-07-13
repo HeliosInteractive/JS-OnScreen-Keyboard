@@ -191,8 +191,8 @@ if( !exports ) var exports = {};
 
     this.hide = function(){
       self.active = false;
+      dispatchKeyboardCloseEvent()
       setTimeout(function(){
-        dispatchKeyboardCloseEvent()
         if( self.active ) return;
         self.keyboardEl.classList.add("keyboard-container-hidden");
         self.keyboardEl.innerHTML = "";
