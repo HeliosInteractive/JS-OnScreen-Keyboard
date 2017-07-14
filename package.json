@@ -1,6 +1,6 @@
 {
   "name": "@helios-interactive/okey",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Lightweight and easily customizable onscreen keyboard",
   "main": "dist/@helios-interactive/okey.js",
   "directories": {
