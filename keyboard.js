@@ -250,10 +250,29 @@ if( !exports ) var exports = {};
       action(keyInfo);
     });
 
+    // Allow for a key to be input multiple times by holding it down
+    // Timeout will provide a delay to prevent accidental holding
+    // After that, the interval will provide repeated input
+    self.keyHoldTimeout = window.setTimeout(function() {
+      self.keyHoldInterval = window.setInterval(function() {
+        self.listeners['key'].forEach(function(action){
+          action(keyInfo);
+        });
+      }, 100)
+    }, 400)
   };
 
   var handleKeyupEvents = function (e) {
     e.target.classList.remove('active');
+
+    // Clear timeout to make sure multiple keypress does not start
+    if(this.keyHoldTimeout) {
+      window.clearTimeout(this.keyHoldTimeout);
+    }
+    // Clear interval to make sure multiple keypress does not continue
+    if(this.keyHoldInterval) {
+      window.clearInterval(this.keyHoldInterval);
+    }
   }
 
   global.Keyboard = Keyboard;
