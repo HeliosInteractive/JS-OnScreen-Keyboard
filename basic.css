@@ -36,8 +36,9 @@
   margin: 4px;
   display: inline-block;
   background: #636363;
+  transition: background 100ms ease;
 }
-.keyboard-key:active {
+.keyboard-key.active {
   background: #777777;
 }
 .keyboard-close-button {

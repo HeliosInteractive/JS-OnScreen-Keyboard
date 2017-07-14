@@ -125,10 +125,12 @@ if( !exports ) var exports = {};
     this.layout = null;
     this.keyboardEl = document.createElement("div");
     this.keyboardEl.classList.add("keyboard-container");
-    this.keyboardEl.addEventListener("mousedown", handleKeyboardEvents.bind(this));
+    this.keyboardEl.addEventListener("mousedown", handleKeydownEvents.bind(this));
+    this.keyboardEl.addEventListener("mouseup", handleKeyupEvents.bind(this));
     // TODO - find a way to enable this touchstart event again.
     // It prevents the :active state from being triggered on keys
-    // this.keyboardEl.addEventListener("touchstart", handleKeyboardEvents.bind(this));
+    this.keyboardEl.addEventListener("touchstart", handleKeydownEvents.bind(this));
+    this.keyboardEl.addEventListener("touchend", handleKeyupEvents.bind(this));
 
     // Generate keyboard HTML, bind events, insert them to given element
     this.show = function (layout) {
@@ -232,12 +234,16 @@ if( !exports ) var exports = {};
 
 
   // We would like to pipe all keyboard events through one handler
-  var handleKeyboardEvents = function (e) {
-
+  var handleKeydownEvents = function (e) {
     var self = this;
     e.preventDefault();
     // Check to make sure it's a key that's pressed
     if (!e.target.classList.contains("keyboard-key")) return;
+
+    // the :active pseudo class is not working with touch events
+    // use active class to get around this issue
+    e.target.classList.add('active');
+
     var keyInfo = e.target.dataset;
 
     self.listeners['key'].forEach(function(action){
@@ -245,6 +251,10 @@ if( !exports ) var exports = {};
     });
 
   };
+
+  var handleKeyupEvents = function (e) {
+    e.target.classList.remove('active');
+  }
 
   global.Keyboard = Keyboard;
   global.Keyboard.layout = {
