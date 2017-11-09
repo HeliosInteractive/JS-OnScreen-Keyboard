@@ -67,6 +67,17 @@ if( !exports ) var exports = {};
         return;
       }
 
+      // Toggle will change the layout to a different one that is pre-determined
+      // An empty toggle key will toggle the keyboard back to default
+      if (e.key.substring(0, 6) == "toggle") {
+        var newType = e.key.substring(6);
+
+        if(newType.length >= 0 && global.Keyboard.layout[newType]) {
+          return this.Keyboard.Keyboard.show(newType);
+        }
+        return;
+      }
+
       if( this.value.length >= this.maxLength && this.maxLength != -1 ){
         return;
       }
@@ -134,6 +145,8 @@ if( !exports ) var exports = {};
 
     // Generate keyboard HTML, bind events, insert them to given element
     this.show = function (layout) {
+      // Clear any timers relating to keyhold
+      clearKeyHoldTimers();
 
       if (!global.Keyboard.layout[layout]) throw new Error("keyboard initiation: Missing layout: " + layout);
       if( self.layout && layout === self.layout && this.active){
@@ -253,8 +266,8 @@ if( !exports ) var exports = {};
     // Allow for a key to be input multiple times by holding it down
     // Timeout will provide a delay to prevent accidental holding
     // After that, the interval will provide repeated input
-    self.keyHoldTimeout = window.setTimeout(function() {
-      self.keyHoldInterval = window.setInterval(function() {
+    window.keyHoldTimeout = window.setTimeout(function() {
+      window.keyHoldInterval = window.setInterval(function() {
         self.listeners['key'].forEach(function(action){
           action(keyInfo);
         });
@@ -266,12 +279,17 @@ if( !exports ) var exports = {};
     e.target.classList.remove('active');
 
     // Clear timeout to make sure multiple keypress does not start
-    if(this.keyHoldTimeout) {
-      window.clearTimeout(this.keyHoldTimeout);
+    clearKeyHoldTimers();
+  }
+
+  var clearKeyHoldTimers = function () {
+    // Clear timeout to make sure multiple keypress does not start
+    if(window.keyHoldTimeout) {
+      window.clearTimeout(window.keyHoldTimeout);
     }
     // Clear interval to make sure multiple keypress does not continue
-    if(this.keyHoldInterval) {
-      window.clearInterval(this.keyHoldInterval);
+    if(window.keyHoldInterval) {
+      window.clearInterval(window.keyHoldInterval);
     }
   }
 
