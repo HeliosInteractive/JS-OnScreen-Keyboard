@@ -146,7 +146,7 @@ if( !exports ) var exports = {};
     // Generate keyboard HTML, bind events, insert them to given element
     this.show = function (layout) {
       // Clear any timers relating to keyhold
-      clearKeyHoldTimers();
+      this.clearKeyHoldTimers();
 
       if (!global.Keyboard.layout[layout]) throw new Error("keyboard initiation: Missing layout: " + layout);
       if( self.layout && layout === self.layout && this.active){
@@ -202,12 +202,16 @@ if( !exports ) var exports = {};
       global.Keyboard.layout[self.layout].forEach(foreachLayout);
       // Append keys to el
 
+      // Send an event signifying open of keyboard
       dispatchKeyboardOpenEvent()
       holder.appendChild(self.keyboardEl);
     };
 
     this.hide = function(){
       self.active = false;
+      // Clear any timers relating to keyhold to cleanup
+      this.clearKeyHoldTimers();
+      // Send an event signifying close of keyboard
       dispatchKeyboardCloseEvent()
       setTimeout(function(){
         if( self.active ) return;
@@ -243,6 +247,20 @@ if( !exports ) var exports = {};
       });
     };
 
+    /**
+     * Clear timer events bound to the keyboard
+     */
+    this.clearKeyHoldTimers = function () {
+      // Clear timeout to make sure multiple keypress does not start
+      if(this.keyHoldTimeout) {
+        window.clearTimeout(this.keyHoldTimeout);
+      }
+      // Clear interval to make sure multiple keypress does not continue
+      if(this.keyHoldInterval) {
+        window.clearInterval(this.keyHoldInterval);
+      }
+    }
+
   };
 
 
@@ -264,10 +282,12 @@ if( !exports ) var exports = {};
     });
 
     // Allow for a key to be input multiple times by holding it down
+    // Ensure that any current timers are cleared before continuing
+    self.clearKeyHoldTimers();
     // Timeout will provide a delay to prevent accidental holding
     // After that, the interval will provide repeated input
-    window.keyHoldTimeout = window.setTimeout(function() {
-      window.keyHoldInterval = window.setInterval(function() {
+    self.keyHoldTimeout = window.setTimeout(function() {
+      self.keyHoldInterval = window.setInterval(function() {
         self.listeners['key'].forEach(function(action){
           action(keyInfo);
         });
@@ -279,18 +299,7 @@ if( !exports ) var exports = {};
     e.target.classList.remove('active');
 
     // Clear timeout to make sure multiple keypress does not start
-    clearKeyHoldTimers();
-  }
-
-  var clearKeyHoldTimers = function () {
-    // Clear timeout to make sure multiple keypress does not start
-    if(window.keyHoldTimeout) {
-      window.clearTimeout(window.keyHoldTimeout);
-    }
-    // Clear interval to make sure multiple keypress does not continue
-    if(window.keyHoldInterval) {
-      window.clearInterval(window.keyHoldInterval);
-    }
+    this.clearKeyHoldTimers();
   }
 
   global.Keyboard = Keyboard;
