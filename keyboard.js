@@ -45,6 +45,8 @@ if( !exports ) var exports = {};
       dispatchEvent('keydown', keyInfo);
       dispatchEvent('keypress', keyInfo);
       dispatchEvent('keyup', keyInfo);
+      dispatchEvent('input', keyInfo);
+      dispatchEvent('change', keyInfo);
     };
 
     this.keydownfunc = function(e){
